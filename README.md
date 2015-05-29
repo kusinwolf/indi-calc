@@ -8,3 +8,4 @@ Standards:
 
 Requirements:
 - Python 2.7
+- Flask (http://flask.pocoo.org/)
