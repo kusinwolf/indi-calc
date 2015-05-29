@@ -1,16 +1,25 @@
+import json
 import math
 
-from pprint import pprint
-
 from base import Manufacturable
-from materials import CaldariFuelBlocks
 
-from materials import IonicSolutions
-from materials import ConsumerElectronics
 
-number_of_large_towers = 10
+def json_dumps(item):
+    """
+    Converts any object to a json string
+    Example: {IonicSoluions: 3000} => '{"Ionic Solutions": 3000}'
 
-required_fuel = CaldariFuelBlocks * number_of_large_towers
+    :param item: What ever needs conversion
+    :type item: *
+    :returns: json string of item
+    :rtype: str
+    """
+    output = item
+
+    if isinstance(item, dict):
+        output = {str(k): v for k, v in item.items()}
+
+    return json.dumps(output)
 
 
 def get_next_requirement(
@@ -63,16 +72,3 @@ def get_next_requirement(
             requirements[sub_item] += amount
 
     return requirements
-
-all_materials_required = {
-    IonicSolutions: 0,
-    ConsumerElectronics: 0
-}
-
-get_next_requirement(
-    CaldariFuelBlocks * 40,
-    requirements=all_materials_required,
-    limit_to_input_keys_only=True,
-    depth=-1
-)
-pprint(all_materials_required)

@@ -37,6 +37,13 @@ class MarketItem(object):
         """
         return self.name == other.name
 
+    def __str__(self):
+        """
+        :returns: String representation of the object
+        :rtype: str
+        """
+        return self.name
+
 
 class Manufacturable(MarketItem):
     def __init__(
