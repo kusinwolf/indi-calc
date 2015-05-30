@@ -305,13 +305,13 @@ NitrogenIsotopes = MarketItem(name="Nitrogen Isotopes")
 CaldariFuelBlocks = Manufacturable(
     requirements={
         EnrichedUranium: 4,
-        Oxygen: 20,
+        Oxygen: 22,
         MechanicalParts: 4,
         Coolant: 9,
         Robotics: 1,
-        HeavyWater: 151,
-        LiquidOzone: 151,
-        NitrogenIsotopes: 400
+        HeavyWater: 167,
+        LiquidOzone: 167,
+        NitrogenIsotopes: 444
     },
     produces=40,
     processing_time=15 * 60,

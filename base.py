@@ -1,5 +1,6 @@
 """ I feel as though I'm over doing this o_o """
 from copy import deepcopy
+import math
 
 
 class MarketItem(object):
@@ -47,25 +48,60 @@ class MarketItem(object):
 
 class Manufacturable(MarketItem):
     def __init__(
-        self, requirements={}, produces=0, processing_time=0, *args, **kwargs
+        self, requirements={}, produces=0, processing_time=0,
+        material_efficiency=0, time_efficiency=0, *args, **kwargs
     ):
         """
-        Basically a blueprint original or copy
+        Blueprint original, copy, or planetary factory
 
-        :param requirements: What items are required to produce this
+        :param requirements: What items are required to produce at 0 ME
             {Item: Amount}
         :type requirements: dict
         :param produces: How many items are produced from one run
         :type produces: int
-        :param processing_time: Time in seconds for how long it takes
+        :param processing_time: Time in seconds for how long it takes at 0 TE
         :type processing_time: int
+        :param material_efficiency: Level of material efficiency researched
+            [0 -> 10]
+        :type material_efficiency: int
+        :param time_efficiency: Level of time efficiency researched
+            [0 -> 20, 2]
+        :type time_efficiency: int
         """
-        self.material_efficiency = 10
-        self.time_efficiency = 20
-        self.requirements = requirements
-        self.processing_time = processing_time  # Time in seconds
+        self.material_efficiency = material_efficiency
+        self.time_efficiency = time_efficiency
+        self.requirements = deepcopy(requirements)
+        self.processing_time = processing_time
         self.produces = produces
+
+        self.set_material_efficiency(material_efficiency=material_efficiency)
+        self.set_time_efficiency(time_efficiency=time_efficiency)
+
         super(Manufacturable, self).__init__(*args, **kwargs)
+
+    def set_material_efficiency(self, material_efficiency):
+        """
+        :param material_efficiency: What is the ME level of this blueprint
+            [0 -> 10]
+        :type material_efficiency: int
+        """
+        self.material_efficiency = material_efficiency
+
+        for item, amount in self.requirements.items():
+            self.requirements[item] = math.ceil(
+                amount * (1.0 - (material_efficiency / 100.0))
+            )
+
+    def set_time_efficiency(self, time_efficiency):
+        """
+        :param time_efficiency: What is the TE level of this blueprint
+            [0 -> 20, 2]
+        :type time_efficiency: int
+        """
+        self.time_efficiency = time_efficiency
+        self.processing_time = self.processing_time * (
+            1.0 - (time_efficiency / 100.0)
+        )
 
     def __mul__(self, multiplier):
         """
