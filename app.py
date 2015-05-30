@@ -108,11 +108,19 @@ def hello():
         "item": "Item Name",
         "depth": int,
         "amount": int,
-        "body": {"Item Name": int}
-        "show_only_provided": boolean
+        "body": {"Item Name": int},
+        "show_only_provided": boolean,
+        "material_efficiency": int,
+        "time_efficiency": int
     }<br/>
     Headers: {"Content-Type": "application/json", "accept": "application/json"}
     <br/>
+    Returns: {
+        "item": "Item Name",
+        "produces": number_of_items_produced,
+        "requirements": {"Item": amount_required, ..},
+        "time_required": time_to_produce_in_seconds
+    }<br/>
     <br/>
     Defaults:<br/>
     - Depth: -1<br/>
@@ -193,8 +201,11 @@ def cost_handler():
 
     output = {
         "item": str(item),
-        "produces": item.produces,
-        "requirements": requirements
+        "produces": item.produces * data.get("amount", 1),
+        "requirements": requirements,
+        "time_required": item.processing_time * (
+            1.0 - (data.get("time_efficiency", 0) / 100.0)
+        ) * data.get("amount", 1)
     }
 
     return json.dumps(convert_to_jsonable_object(output))
