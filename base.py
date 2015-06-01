@@ -71,6 +71,7 @@ class Manufacturable(MarketItem):
         self.material_efficiency = material_efficiency
         self.time_efficiency = time_efficiency
         self.requirements = deepcopy(requirements)
+        self._origin_requirements = deepcopy(requirements)
         self.processing_time = processing_time
         self.produces = produces
 
@@ -84,12 +85,18 @@ class Manufacturable(MarketItem):
         :param material_efficiency: What is the ME level of this blueprint
             [0 -> 10]
         :type material_efficiency: int
+        :raises Exception: If material_efficiency is not without correct bounds
         """
+        if material_efficiency < 0 or material_efficiency > 10:
+            raise Exception("Bad Input for material_efficiency: '{}'".format(
+                material_efficiency
+            ))
+
         self.material_efficiency = material_efficiency
 
-        for item, amount in self.requirements.items():
+        for item, amount in self._origin_requirements.items():
             self.requirements[item] = math.ceil(
-                amount * (1.0 - (material_efficiency / 100.0))
+                amount * (1.0 - (self.material_efficiency / 100.0))
             )
 
     def set_time_efficiency(self, time_efficiency):
@@ -97,10 +104,20 @@ class Manufacturable(MarketItem):
         :param time_efficiency: What is the TE level of this blueprint
             [0 -> 20, 2]
         :type time_efficiency: int
+        :raises Exception: If time_efficiency is not without correct bounds
         """
+        if (
+            time_efficiency < 0 or
+            time_efficiency > 20 or
+            time_efficiency % 2 == 1
+        ):
+            raise Exception("Bad Input for time_efficiency: '{}'".format(
+                time_efficiency
+            ))
+
         self.time_efficiency = time_efficiency
         self.processing_time = self.processing_time * (
-            1.0 - (time_efficiency / 100.0)
+            1.0 - (self.time_efficiency / 100.0)
         )
 
     def __mul__(self, multiplier):

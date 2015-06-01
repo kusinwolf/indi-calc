@@ -1,3 +1,5 @@
+
+from copy import deepcopy
 import logging
 import json
 
@@ -5,7 +7,6 @@ from flask import Flask
 from flask import request
 
 from base import MarketItem
-from costs import convert_to_jsonable_object
 from costs import get_next_requirement
 
 # This is bad but a hack for now
@@ -47,9 +48,67 @@ def convert_payload_to_items(requirements):
     new_requirements = {}
 
     for key, value in requirements.items():
-        new_requirements[get_item(key)] = value
+        new_requirements[deepcopy(get_item(key))] = value
 
     return new_requirements
+
+
+def convert_to_jsonable_object(item):
+    """
+    Converts any object to a json string
+    Examples: {IonicSoluions: 3000} => {"Ionic Solutions": 3000}
+        {SomeItem: {HereItem: 3000}} => {"SomeItem": {"HereItem": 3000}}
+
+    :param item: What ever needs conversion
+    :type item: *
+    :returns: jsonable object
+    :rtype: *
+    """
+    if isinstance(item, dict):
+        output = {
+            convert_to_jsonable_object(key): convert_to_jsonable_object(value)
+            for key, value in item.items()
+        }
+
+    elif isinstance(item, list):
+        output = [
+            convert_to_jsonable_object(x) for x in item
+        ]
+
+    elif isinstance(item, tuple):
+        output = (
+            convert_to_jsonable_object(x) for x in item
+        )
+
+    elif isinstance(item, MarketItem):
+        output = str(item)
+
+    else:
+        output = item
+
+    return output
+
+
+def filter_requirements(input_filter, requirements):
+    """
+        Only returns the key, value pairs requested
+
+        :param input_filter: List, tuple, or dictionary of Items to filter by
+        :type input_filter: List/tuple/dict
+        :param requirements: Dictionary of all calcuated requirements
+            :see get_next_requirement:
+        :type requirements: dict
+        :returns: Filtered requirements
+        :rtype: dict
+    """
+    if not input_filter:
+        return deepcopy(requirements)
+
+    return {
+        key: value
+        for key, value in requirements.items()
+        if key in input_filter
+    }
 
 
 def handle_exception(function):
@@ -108,10 +167,11 @@ def hello():
         "item": "Item Name",
         "depth": int,
         "amount": int,
-        "body": {"Item Name": int},
-        "show_only_provided": boolean,
-        "material_efficiency": int,
-        "time_efficiency": int
+        "filter_by": {"Item Name": amount_on_hand},
+        "blueprints": {
+            "Item Name": {"material_efficiency": int, "time_efficiency": int},
+            ..
+        }
     }<br/>
     Headers: {"Content-Type": "application/json", "accept": "application/json"}
     <br/>
@@ -167,14 +227,15 @@ def cost_handler():
     :type item: str
     :param amount: How many to produce
     :type amount: int
-    :param show_only_provided: Given the provided list, only return data for
-        that fills that list.
-        ex: {"Ionic Solutions": 0} => {"Ionic Solutions": 6000}
-    :type show_only_provided: boolean
-    :param body: Provided materials, or materials you only want to see returned
-        ex: {"Item": amount}
-        :see show_only_provided:
-    :type body: dict
+    :param filter_by: Filter requirements down to provided materials, subtract
+        the provided amount from the requirements
+        ex: {"Item": amount_on_hand}
+    :type filter_by: dict
+    :param blueprints: Current blueprints on hand with their ME & TE values
+        ex: {"Item": {
+                "material_efficiency": me_level, "time_efficiency": te_level
+            }}
+    :type blueprints: dict
     :param depth: How far down the requirements tree to go
         -1 Go till end of all requirements -- Default
         0 Stop at the head node
@@ -185,24 +246,27 @@ def cost_handler():
     """
     data = request.get_json() or {}
 
-    item = get_item(
+    item = deepcopy(get_item(
         data.get("item", "Caldari Fuel Block")
-    )
+    ))
+
+    blueprints = convert_payload_to_items(data.get("blueprints", {}))
 
     requirements = get_next_requirement(
         item,
-        material_efficiency=data.get("material_efficiency", 0),
-        time_efficiency=data.get("time_efficiency", 0),
         number_of_runs=data.get("amount", 1),
-        limit_to_input_keys_only=data.get("show_only_provided", False),
-        requirements=convert_payload_to_items(data.get("body", {})),
-        depth=data.get("depth", -1)
+        depth=data.get("depth", -1),
+        blueprints=blueprints
+    )
+
+    filtered_requirements = filter_requirements(
+        convert_payload_to_items(data.get("filter_by", {})), requirements
     )
 
     output = {
         "item": str(item),
         "produces": item.produces * data.get("amount", 1),
-        "requirements": requirements,
+        "requirements": filtered_requirements,
         "time_required": item.processing_time * (
             1.0 - (data.get("time_efficiency", 0) / 100.0)
         ) * data.get("amount", 1)
@@ -230,10 +294,10 @@ def cost_get_handler(name=None, amount=1, depth=-1):
     """
     depth = int(depth)
 
-    return json_dumps(get_next_requirement(
+    return json.dumps(convert_to_jsonable_object(get_next_requirement(
         get_item(name) * amount,
         depth=depth
-    ))
+    )))
 
 if __name__ == "__main__":
     app.debug = True
