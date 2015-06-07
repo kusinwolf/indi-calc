@@ -5,6 +5,48 @@ import math
 from base import Manufacturable
 
 
+def apply_blueprints_to_item(item, blueprints):
+    """
+    Applies all of the blueprints to the item's ME * TE
+
+    :param items: Item
+    :type items: Manufacturable
+    :param blueprints: Incoming body of {
+        Item: {"material_efficiency": Value, "time_efficiency": Value}, ..
+    }
+    :type blueprints: dict
+    :returns: Nothing
+    :rtype: None
+    """
+
+    item.set_material_efficiency(
+        material_efficiency=blueprints.get(item, {}).get(
+            "material_efficiency", 0
+        )
+    )
+    item.set_time_efficiency(
+        time_efficiency=blueprints.get(item, {}).get("time_efficiency", 0)
+    )
+
+
+def apply_blueprints_to_multiple_items(items, blueprints):
+    """
+    Applies all of the blueprints to the items' ME * TE with in the items dict
+
+    :param items: Incoming body of {Item: amount, ..}
+    :type items: dict
+    :param blueprints: Incoming body of {
+        Item: {"material_efficiency": Value, "time_efficiency": Value}, ..
+    }
+    :type blueprints: dict
+    :returns: Nothing
+    :rtype: None
+    """
+
+    for item in items.keys():
+        apply_blueprints_to_item(item, blueprints)
+
+
 def get_next_requirement(
     item, number_of_runs=1, requirements={}, depth=0, blueprints={}
 ):
@@ -31,13 +73,7 @@ def get_next_requirement(
     # Prevents a memory leak from happening if someone does not provide a dict
     requirements = deepcopy(requirements)
 
-    if item in blueprints:
-        item.set_material_efficiency(
-            material_efficiency=blueprints[item].get("material_efficiency", 0)
-        )
-        item.set_time_efficiency(
-            time_efficiency=blueprints[item].get("time_efficiency", 0)
-        )
+    apply_blueprints_to_item(item, blueprints)
 
     for sub_item, amount in item.requirements.items():
         amount *= number_of_runs

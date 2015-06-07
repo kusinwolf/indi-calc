@@ -7,6 +7,7 @@ from flask import Flask
 from flask import request
 
 from base import MarketItem
+from costs import apply_blueprints_to_multiple_items
 from costs import get_next_requirement
 
 # This is bad but a hack for now
@@ -15,6 +16,32 @@ from materials import *
 LOGGER = logging.getLogger(__name__)
 
 app = Flask(__name__)
+
+
+def sum_requirements(left_requirements, right_requirements):
+    """
+    Converts the incoming user payload into the required payload
+
+    :param left_requirements: Incoming body of {Item: amount}
+    :type left_requirements: dict
+    :param right_requirements: Incoming body of {Item: amount}
+    :type right_requirements: dict
+    :returns: Sum of both requirements dicts
+        ex: Left: {IonicSolutions: 3000} + Right: {IonicSolutions: 3000} =>
+        {IonicSolutions: 6000}
+    :rtype: dict
+    """
+    new_requirements = {}
+
+    for item, amount in left_requirements.items():
+        new_requirements.setdefault(item, 0)
+        new_requirements[item] += amount
+
+    for item, amount in right_requirements.items():
+        new_requirements.setdefault(item, 0)
+        new_requirements[item] += amount
+
+    return new_requirements
 
 
 def get_item(name):
@@ -158,7 +185,7 @@ def hello():
     GET to:<br/>
     http://104.130.216.45:5000/cost/Item%20Name<br/>
     http://104.130.216.45:5000/cost/Item%20Name/AmountDesired<br/>
-    http://104.130.216.45:5000/cost/Item%20Name/AmountDesired/HowFarDownTheRequirementsTreeTogo<br/>
+    http://104.130.216.45:5000/cost/Item%20Name/AmountDesired/HowFarDownTheRequirementsTreeToGo<br/>
     <br/>
     POST to http://104.130.216.45:5000/cost<br/>
     Payload:<br/>
@@ -221,7 +248,34 @@ def hello():
 @app.route("/cost", methods=["POST"])
 def cost_handler():
     """
-    Finds the shopping list costs for a given item
+    Finds the shopping list costs for any number of given items
+
+    Input Contract:
+    {
+        "filter_by": {"Item Name": AmountInHand, ..},
+        "blueprints": {
+            "Item Name": {
+                "material_efficiency": Value, "time_efficiency": Value
+            },
+            ..
+        },
+        "items": {
+            "Item Name": {"amount": NumberOfRuns, "depth": HowDeepToGo},
+            ..
+        }
+    }
+
+    Return Contract:
+    {
+        "items": {
+            "Item Name": {
+                "produces": number_of_items_produced,
+                "time_required": time_to_produce_in_seconds
+            },
+            ..
+        },
+        "requirements": {"Item": amount_required, ..}
+    }
 
     :param item: Which item to get a shopping list for
     :type item: str
@@ -246,31 +300,42 @@ def cost_handler():
     """
     data = request.get_json() or {}
 
-    item = deepcopy(get_item(
-        data.get("item", "Caldari Fuel Block")
-    ))
-
+    items = deepcopy(convert_payload_to_items(data.get("items")))
     blueprints = convert_payload_to_items(data.get("blueprints", {}))
 
-    requirements = get_next_requirement(
-        item,
-        number_of_runs=data.get("amount", 1),
-        depth=data.get("depth", -1),
-        blueprints=blueprints
-    )
+    if items is None:
+        raise Exception(
+            "Content-Type was not provided or no data provided for `items`"
+        )
+
+    apply_blueprints_to_multiple_items(items, blueprints)
+
+    requirements = {}
+
+    for item, controls in items.items():
+        next_requirements = get_next_requirement(
+            item,
+            number_of_runs=controls.get("amount", 1),
+            depth=controls.get("depth", -1),
+            blueprints=blueprints
+        )
+
+        requirements = sum_requirements(requirements, next_requirements)
 
     filtered_requirements = filter_requirements(
         convert_payload_to_items(data.get("filter_by", {})), requirements
     )
 
     output = {
-        "item": str(item),
-        "produces": item.produces * data.get("amount", 1),
         "requirements": filtered_requirements,
-        "time_required": item.processing_time * (
-            1.0 - (data.get("time_efficiency", 0) / 100.0)
-        ) * data.get("amount", 1)
+        "items": {}
     }
+
+    for item, controls in items.items():
+        output["items"][item] = {
+            "produces": item.produces * controls.get("amount", 1),
+            "time_required": item.processing_time * controls.get("amount", 1)
+        }
 
     return json.dumps(convert_to_jsonable_object(output))
 
