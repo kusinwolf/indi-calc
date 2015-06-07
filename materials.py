@@ -696,16 +696,23 @@ OreProspectingArray5 = Manufacturable(
 
 # Advanced Reaction Materials
 CrystallineCarbonide = MarketItem(name="Crystalline Carbonide")
-PhenolicComposites = MarketItem(name="Phenolic Composites")
-Ferrogel = MarketItem(name="Ferrogel")
-Nanotransistors = MarketItem(name="Nanotransistors")
-HypersynapticFibers = MarketItem(name="Hypersynaptic Fibers")
-PhotonicMetamaterials = MarketItem(name="Photonic Metamaterials")
-SylramicFibers = MarketItem(name="Sylramic Fibers")
 FermionicCondensates = MarketItem(name="Fermionic Condensates")
+FerniteCarbide = MarketItem(name="Fernite Carbide")
+Ferrogel = MarketItem(name="Ferrogel")
 Fullerides = MarketItem(name="Fullerides")
+HypersynapticFibers = MarketItem(name="Hypersynaptic Fibers")
+Nanotransistors = MarketItem(name="Nanotransistors")
+NonlinearMetamaterials = MarketItem(name="Nonlinear Metamaterials")
+PhenolicComposites = MarketItem(name="Phenolic Composites")
+PhotonicMetamaterials = MarketItem(name="Photonic Metamaterials")
+PlasmonicMetamaterials = MarketItem(name="Plasmonic Metamaterials")
+SylramicFibers = MarketItem(name="Sylramic Fibers")
+TerahertzMetamaterials = MarketItem(name="Terahertz Metamaterials")
+TitaniumCarbide = MarketItem(name="Titanium Carbide")
+TungstenCarbide = MarketItem(name="Tungsten Carbide")
 
 # T2 Components
+# Gallente
 IonThruster = Manufacturable(
     requirements={
         CrystallineCarbonide: 13,
@@ -781,6 +788,284 @@ PulseShieldEmitter = Manufacturable(
     produces=1,
     processing_time=2 * 60 + 30,
     name="Pulse Shield Emitter"
+)
+
+# Minmatar
+PlasmaThruster = Manufacturable(
+    requirements={
+        FerniteCarbide: 13,
+        PhenolicComposites: 3,
+        Ferrogel: 1
+    },
+    produces=1,
+    processing_time=2 * 60 + 30,
+    name="Plasma Thruster"
+)
+
+LadarSensorCluster = Manufacturable(
+    requirements={
+        FerniteCarbide: 22,
+        Nanotransistors: 1,
+        HypersynapticFibers: 2
+    },
+    produces=1,
+    processing_time=2 * 60 + 30,
+    name="Ladar Sensor Cluster"
+)
+
+NanomechanicalMicroprocessor = Manufacturable(
+    requirements={
+        FerniteCarbide: 17,
+        PhenolicComposites: 6,
+        Nanotransistors: 2,
+        PlasmonicMetamaterials: 2
+    },
+    produces=1,
+    processing_time=1 * 60 + 15,
+    name="Nanomechanical Microprocessor"
+)
+
+FerniteCarbideCompositeArmorPlate = Manufacturable(
+    requirements={
+        FerniteCarbide: 44,
+        SylramicFibers: 11
+    },
+    produces=1,
+    processing_time=25,
+    name="Fernite Carbide Composite Armor Plate"
+)
+
+NuclearReactorUnit = Manufacturable(
+    requirements={
+        FerniteCarbide: 9,
+        FermionicCondensates: 2
+    },
+    produces=1,
+    processing_time=5 * 60,
+    name="Nuclear Reactor Unit"
+)
+
+ElectrolyticCapacitroUnit = Manufacturable(
+    requirements={
+        FerniteCarbide: 27,
+        Fullerides: 11,
+        Nanotransistors: 1,
+        PlasmonicMetamaterials: 2
+    },
+    produces=1,
+    processing_time=2 * 60 + 30,
+    name="Electrolytic Capacitro Unit"
+)
+
+DeflectionShieldEmitter = Manufacturable(
+    requirements={
+        FerniteCarbide: 22,
+        SylramicFibers: 9,
+        Ferrogel: 1
+    },
+    produces=1,
+    processing_time=2 * 60 + 30,
+    name="Deflection Shield Emitter"
+)
+
+# Amarr
+AnitmatterReactorUnit = Manufacturable(
+    requirements={
+        TungstenCarbide: 9,
+        FermionicCondensates: 2
+    },
+    produces=1,
+    processing_time=5 * 60,
+    name="Anitmatter Reactor Unit"
+)
+
+EMPulseGenerator = Manufacturable(
+    requirements={
+        TungstenCarbide: 22,
+        PhenolicComposites: 7,
+        Nanotransistors: 2
+    },
+    produces=1,
+    processing_time=2 * 60 + 30,
+    name="EM Pulse Generator"
+)
+
+FusionThruster = Manufacturable(
+    requirements={
+        TungstenCarbide: 13,
+        PhenolicComposites: 3,
+        Ferrogel: 1
+    },
+    produces=1,
+    processing_time=2 * 60 + 30,
+    name="Fusion Thruster"
+)
+
+LaserFocusingCrystals = Manufacturable(
+    requirements={
+        TungstenCarbide: 31,
+        Fullerides: 11,
+        HypersynapticFibers: 1
+    },
+    produces=1,
+    processing_time=2 * 60 + 30,
+    name="Laser Focusing Crystals"
+)
+
+LinearShieldEmitter = Manufacturable(
+    requirements={
+        TungstenCarbide: 22,
+        SylramicFibers: 9,
+        Ferrogel: 1
+    },
+    produces=1,
+    processing_time=2 * 60 + 30,
+    name="Linear Shield Emitter"
+)
+
+NanoelectricalMicroprocessor = Manufacturable(
+    requirements={
+        TungstenCarbide: 16,
+        PhenolicComposites: 6,
+        Nanotransistors: 2,
+        TerahertzMetamaterials: 2,
+    },
+    produces=1,
+    processing_time=1 * 60 + 15,
+    name="Nanoelectrical Microprocessor"
+)
+
+RadarSensorCluster = Manufacturable(
+    requirements={
+        TungstenCarbide: 22,
+        Nanotransistors: 1,
+        HypersynapticFibers: 2
+    },
+    produces=1,
+    processing_time=2 * 60 + 30,
+    name="Radar Sensor Cluster"
+)
+
+TesseractCapacitorUnit = Manufacturable(
+    requirements={
+        TungstenCarbide: 27,
+        Fullerides: 11,
+        Nanotransistors: 1,
+        TerahertzMetamaterials: 2
+    },
+    produces=1,
+    processing_time=2 * 60 + 30,
+    name="Tesseract Capacitor Unit"
+)
+
+TungstenCarbideArmorPlate = Manufacturable(
+    requirements={
+        TungstenCarbide: 44,
+        SylramicFibers: 11
+    },
+    produces=1,
+    processing_time=2 * 60 + 30,
+    name="Tungsten Carbide Armor Plate"
+)
+
+# Caldari
+GravimetricSensorCluster = Manufacturable(
+    requirements={
+        TitaniumCarbide: 22,
+        Nanotransistors: 1,
+        HypersynapticFibers: 2
+    },
+    produces=1,
+    processing_time=2 * 60 + 30,
+    name="Gravimetric Sensor Cluster"
+)
+
+GravitonPulseGenerator = Manufacturable(
+    requirements={
+        TitaniumCarbide: 22,
+        PhenolicComposites: 7,
+        Nanotransistors: 2
+    },
+    produces=1,
+    processing_time=2 * 60 + 30,
+    name="Graviton Pulse Generator"
+)
+
+GravitonReactorUnit = Manufacturable(
+    requirements={
+        TitaniumCarbide: 9,
+        FermionicCondensates: 2
+    },
+    produces=1,
+    processing_time=5 * 60,
+    name="Graviton Reactor Unit"
+)
+
+MagpulseThruster = Manufacturable(
+    requirements={
+        TitaniumCarbide: 13,
+        PhenolicComposites: 3,
+        Ferrogel: 1
+    },
+    produces=1,
+    processing_time=2 * 60 + 30,
+    name="Magpulse Thruster"
+)
+
+QuantumMicroprocessor = Manufacturable(
+    requirements={
+        TitaniumCarbide: 17,
+        PhenolicComposites: 6,
+        Nanotransistors: 2,
+        NonlinearMetamaterials: 2
+    },
+    produces=1,
+    processing_time=1 * 60 + 15,
+    name="Quantum Microprocessor"
+)
+
+ScalarCapacitorUnit = Manufacturable(
+    requirements={
+        TitaniumCarbide: 27,
+        Fullerides: 11,
+        Nanotransistors: 1,
+        NonlinearMetamaterials: 2
+    },
+    produces=1,
+    processing_time=2 * 60 + 30,
+    name="Scalar Capacitor Unit"
+)
+
+SuperconductorRails = Manufacturable(
+    requirements={
+        TitaniumCarbide: 31,
+        Fullerides: 11,
+        HypersynapticFibers: 1
+    },
+    produces=1,
+    processing_time=2 * 60 + 30,
+    name="Superconductor Rails"
+)
+
+SustainedShieldEmitter = Manufacturable(
+    requirements={
+        TitaniumCarbide: 22,
+        SylramicFibers: 9,
+        Ferrogel: 1
+    },
+    produces=1,
+    processing_time=2 * 60 + 30,
+    name="Sustained Shield Emitter"
+)
+
+TitaniumDiboriteArmorPlate = Manufacturable(
+    requirements={
+        TitaniumCarbide: 44,
+        SylramicFibers: 11
+    },
+    produces=1,
+    processing_time=25,
+    name="Titanium Diborite Armor Plate"
 )
 
 # RAMs
@@ -863,4 +1148,38 @@ Ishtar = Manufacturable(
     produces=1,
     processing_time=2 * 24 * 60 * 60 + 18 * 60 * 60 + 40 * 60,
     name="Ishtar"
+)
+
+Scythe = Manufacturable(
+    requirements={
+        Tritanium: 533333,
+        Pyerite: 140000,
+        Mexallon: 34444,
+        Isogen: 8556,
+        Nocxium: 1222,
+        Zydrine: 822,
+        Megacyte: 156
+    },
+    produces=1,
+    processing_time=3 * 60 * 60 + 20 * 60,
+    name="Scythe"
+)
+
+Scimitar = Manufacturable(
+    requirements={
+        PlasmaThruster: 75,
+        LadarSensorCluster: 263,
+        NanomechanicalMicroprocessor: 1800,
+        FerniteCarbideCompositeArmorPlate: 2250,
+        NuclearReactorUnit: 23,
+        ElectrolyticCapacitroUnit: 750,
+        DeflectionShieldEmitter: 150,
+        ConstructionBlocks: 75,
+        Morphite: 90,
+        Scythe: 1,
+        RAMStarshipTech: 12
+    },
+    produces=1,
+    processing_time=2 * 24 * 60 * 60 + 18 * 60 * 60 + 40 * 60,
+    name="Scimitar"
 )
